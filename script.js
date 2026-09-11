@@ -155,6 +155,12 @@ async function getTSVText() {
     }
 }
 
+// A game is hidden when its "DO NOT SHOW" column is set to a truthy marker
+function isHidden(g) {
+    const v = String(g['DO NOT SHOW'] || '').trim().toLowerCase();
+    return /^(yes|y|true|x|1|hide|hidden|do not show)$/.test(v);
+}
+
 function parseTSV(text) {
     const rows = text.trim().split('\n');
     if (!rows.length) return [];
@@ -167,10 +173,19 @@ function parseTSV(text) {
         g['Banner Link'] = g['Banner Link'] || g.Banner || g['Image Link'] || '';
         g.link = g.link || g['Download Link'] || g.URL || '#';
         return g;
-    }).filter(g => g.Name !== 'Unknown');
+    }).filter(g => g.Name !== 'Unknown' && !isHidden(g));
 }
 
 // Rebuilds featured list without disturbing the current hero index
+// Cheap whole-sheet fingerprint so any edit (row added, flag flipped) triggers a re-render
+function dataSignature(text) {
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+        hash = (hash * 31 + text.charCodeAt(i)) | 0;
+    }
+    return text.length + ':' + hash;
+}
+
 function refreshFeatured() {
     featured = [...allGames].sort(() => Math.random() - 0.5).slice(0, 10);
     if (heroIdx >= featured.length) heroIdx = 0;
@@ -181,7 +196,8 @@ async function load() {
         const text = await getTSVText();
 
         // Only re-render when the data actually changed
-        const signature = String(text.trim().split('\n').length) + ':' + (text.trim().split('\n').pop() || '').slice(0, 40);
+        // (hash the whole sheet so any edit — including a DO NOT SHOW flip — is detected)
+        const signature = dataSignature(text);
         if (signature === lastSignature && allGames.length) {
             return allGames.length;
         }
@@ -708,7 +724,7 @@ function openGameModal(g) {
     badge.textContent = b.label;
 
     // Download source — new TSV column
-    const src = (g['Is it Buzzheather or google drive or both'] || g['Is It Buzzheather or google drive or both'] || '').toLowerCase();
+    const src = (g['Is it Buzzheather or google drive or both'] || '').toLowerCase();
     const isGoogle = src.includes('google');
     const isBuzz = src.includes('buzz');
 

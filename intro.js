@@ -1,7 +1,4 @@
-// intro.js — Three.js intro with floating 3D game planes
-// Gracefully degrades to CSS-only if Three.js or WebGPU is unavailable.
-// All code lives in an IIFE to avoid polluting the global scope (script.js uses
-// the same names like TSV_URL / FALLBACK, which would collide otherwise).
+
 
 (async () => {
 
@@ -16,6 +13,12 @@ const FALLBACK = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=60
 
 let renderer = null;
 let introFinished = false;
+
+// A game is hidden when its "DO NOT SHOW" column is set to a truthy marker
+function isHidden(g) {
+    const v = String(g['DO NOT SHOW'] || '').trim().toLowerCase();
+    return /^(yes|y|true|x|1|hide|hidden|do not show)$/.test(v);
+}
 
 async function init() {
     const canvas = document.getElementById('intro-canvas');
@@ -65,7 +68,7 @@ async function init() {
                 headers.forEach((h, i) => { g[h] = (cols[i] || '').trim().replace(/^["']|["']$/g, ''); });
                 g['Banner Link'] = g['Banner Link'] || g.Banner || g['Image Link'] || '';
                 return g;
-            }).filter(g => g['Banner Link']);
+            }).filter(g => g['Banner Link'] && !isHidden(g));
             gameImages = [...games].sort(() => Math.random() - 0.5).slice(0, 20).map(g => g['Banner Link']);
         } catch (e) {
             console.warn('Intro: could not fetch game data', e);
