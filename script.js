@@ -1,4 +1,4 @@
-const TSV_URL = 'SteamRevolver - Sheet1.tsv';
+const TSV_URL = 'Copy of SteamRevolver - Sheet1.tsv';
 
 async function fetchText(url) {
     const controller = new AbortController();
@@ -16,6 +16,7 @@ let heroIdx = 0;
 let searching = false;
 let savedScroll = 0;
 let accountOpen = false;
+let workshopOpen = false;
 
 const $ = (s) => document.querySelector(s);
 const LIKES_KEY = 'steamrevolver_likes';
@@ -104,10 +105,15 @@ function bindEvents() {
     $('#profile-btn')?.addEventListener('click', openAccount);
     $('#account-close')?.addEventListener('click', closeAccount);
 
+    // Workshop
+    $('#nav-workshop')?.addEventListener('click', e => { e.preventDefault(); openWorkshop(); });
+    $('#workshop-close')?.addEventListener('click', closeWorkshop);
+
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
             if (!$('#search-page')?.classList.contains('hidden')) closeSearch();
             else if (!$('#account-page')?.classList.contains('hidden')) closeAccount();
+            else if (!$('#workshop-page')?.classList.contains('hidden')) closeWorkshop();
             else if (!$('#game-modal')?.classList.contains('hidden')) closeGameModal();
             else if (!$('#collection-modal')?.classList.contains('hidden')) closeModal();
         }
@@ -698,6 +704,46 @@ function renderAccount() {
         return;
     }
     liked.forEach(g => box.appendChild(makeCard(g, 'card-lg')));
+}
+
+/* ===== WORKSHOP ===== */
+function isWorkshop(g) {
+    const v = String(g['Workshop?'] || '').trim().toLowerCase();
+    return /^(yes|y|true|1)$/.test(v);
+}
+function workshopGames() { return allGames.filter(g => isWorkshop(g)); }
+
+function openWorkshop() {
+    if (!$('#search-page')?.classList.contains('hidden')) closeSearch();
+    if (accountOpen) closeAccount();
+    savedScroll = $('#scroll-area')?.scrollTop || 0;
+    workshopOpen = true;
+    const pg = $('#workshop-page');
+    pg.classList.remove('hidden');
+    pg.style.display = '';
+    renderWorkshop();
+}
+function closeWorkshop() {
+    const pg = $('#workshop-page');
+    pg.classList.add('hidden');
+    pg.style.display = '';
+    workshopOpen = false;
+    const scroll = $('#scroll-area');
+    if (scroll) { scroll.scrollTop = savedScroll; }
+}
+function renderWorkshop() {
+    const box = $('#workshop-results');
+    const meta = $('#workshop-meta');
+    if (!box) return;
+    const items = workshopGames();
+    const n = items.length;
+    meta.textContent = n === 0 ? 'No workshop items yet' : `${n} workshop item${n !== 1 ? 's' : ''}`;
+    box.innerHTML = '';
+    if (!items.length) {
+        box.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)"><i class="fa-solid fa-screwdriver-wrench" style="font-size:24px;display:block;margin-bottom:8px"></i><strong style="color:#fff">No workshop items yet</strong><br><span>Games with workshop content will appear here.</span></div>';
+        return;
+    }
+    items.forEach(g => box.appendChild(makeCard(g, 'card-lg')));
 }
 
 /* ===== GAME MODAL ===== */

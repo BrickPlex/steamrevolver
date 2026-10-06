@@ -284,6 +284,18 @@ html, body {
     font-size: 26px;
 }
 
+/* Workshop avatar */
+.workshop-icon {
+    width: 64px; height: 64px;
+    margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #3d5a80, #293241);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: #ffa500;
+    font-size: 26px;
+}
+
 /* Heart on cards */
 .card-heart {
     position: absolute;
@@ -754,8 +766,8 @@ html, body {
 .franchise-thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
 .franchise-thumbs img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 2px; border: 1px solid rgba(255,255,255,0.05); }
 
-/* ===== SEARCH PAGE / ACCOUNT PAGE ===== */
-#search-page, #account-page {
+/* ===== SEARCH PAGE / ACCOUNT PAGE / WORKSHOP PAGE ===== */
+#search-page, #account-page, #workshop-page {
     position: absolute;
     inset: 0;
     z-index: 200;
@@ -764,6 +776,7 @@ html, body {
     padding: 32px;
 }
 #account-page { z-index: 210; }
+#workshop-page { z-index: 205; }
 .search-header { max-width: 900px; margin-bottom: 32px; }
 .back-btn {
     display: inline-flex;
@@ -1080,7 +1093,7 @@ html, body {
 }
 
 /* Search page entrance */
-#search-page, #account-page {
+#search-page, #account-page, #workshop-page {
     animation: searchIn 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 @keyframes searchIn {
@@ -1147,7 +1160,7 @@ html, body {
     .search-btn span, .search-btn kbd { display: none; }
     .float-card { width: 130px; }
     .float-card:nth-child(n+5) { display: none; }
-    #search-page, #account-page { padding: 20px; }
+    #search-page, #account-page, #workshop-page { padding: 20px; }
 }
 @media (max-width: 1024px) {
     .float-card { width: clamp(120px, 15vw, 180px); }

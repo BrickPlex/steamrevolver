@@ -2,7 +2,7 @@
 
 (async () => {
 
-const TSV_URL = 'SteamRevolver - Sheet1.tsv';
+const TSV_URL = 'Copy of SteamRevolver - Sheet1.tsv';
 
 async function fetchText(url) {
     const res = await fetch(url);
